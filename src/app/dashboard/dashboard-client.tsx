@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { PublicProfile, PublicAgent, PublicAgentAction, PublicAudit } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 function ActionRow({
   action,
@@ -240,16 +241,16 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
         </nav>
 
         <div className="max-w-5xl mx-auto px-6 py-12">
-          <div className="mb-12">
+          <Reveal className="mb-12" amount={0}>
             <p className="eyebrow mb-3">Dashboard</p>
             <h1 className="display text-3xl sm:text-4xl">
               Welcome back, <span className="serif text-[#d4ff3a]">{firstName}.</span>
             </h1>
-          </div>
+          </Reveal>
 
           {/* Stats — three columns separated by hairlines, no boxes */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 border-y hairline divide-y sm:divide-y-0 sm:divide-x divide-[rgba(255,255,255,0.06)] mb-12">
-            <div className="px-6 py-6">
+          <Stagger className="grid grid-cols-1 sm:grid-cols-3 border-y hairline divide-y sm:divide-y-0 sm:divide-x divide-[rgba(255,255,255,0.06)] mb-12" amount={0}>
+            <StaggerItem variant="quick" className="px-6 py-6">
               <p className="font-mono text-[11px] text-[#5d626c] tracking-wider mb-2">
                 HOURS SAVED · WEEK
               </p>
@@ -261,8 +262,8 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
                   across {agents.length} agent{agents.length > 1 ? "s" : ""}
                 </p>
               )}
-            </div>
-            <div className="px-6 py-6">
+            </StaggerItem>
+            <StaggerItem variant="quick" className="px-6 py-6">
               <p className="font-mono text-[11px] text-[#5d626c] tracking-wider mb-2">
                 VALUE RECOVERED
               </p>
@@ -270,8 +271,8 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
                 ${totalDollarValue.toLocaleString()}
               </p>
               <p className="text-[12px] text-[#5d626c] mt-2">@ ${hourlyRate}/hr</p>
-            </div>
-            <div className="px-6 py-6">
+            </StaggerItem>
+            <StaggerItem variant="quick" className="px-6 py-6">
               <p className="font-mono text-[11px] text-[#5d626c] tracking-wider mb-2">
                 BUYBACK SCORE
               </p>
@@ -284,8 +285,8 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
                   style={{ width: `${buybackScore}%`, height: "1px" }}
                 />
               </div>
-            </div>
-          </div>
+            </StaggerItem>
+          </Stagger>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Inbox */}
@@ -352,9 +353,9 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
                   )}
                 </div>
               ) : (
-                <div className="border-t hairline">
+                <Stagger className="border-t hairline" amount={0.1}>
                   {agents.slice(0, 6).map((agent) => (
-                    <div key={agent.id} className="border-b hairline py-4">
+                    <StaggerItem variant="quick" key={agent.id} className="border-b hairline py-4">
                       <div className="flex items-baseline justify-between mb-1">
                         <p className="text-[14px] font-medium">{agent.name}</p>
                         <span
@@ -368,9 +369,9 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
                       <p className="font-mono text-[11px] text-[#5d626c] tracking-wider tabular">
                         {agent.tasks_completed} runs · {agent.hours_saved.toFixed(1)}h saved
                       </p>
-                    </div>
+                    </StaggerItem>
                   ))}
-                </div>
+                </Stagger>
               )}
 
               {!latestAudit && (

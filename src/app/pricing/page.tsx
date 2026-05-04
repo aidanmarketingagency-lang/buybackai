@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import UpgradeButton from "@/components/UpgradeButton";
 import BillingPortalButton from "@/components/BillingPortalButton";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 export const metadata = {
   title: "Pricing — BuybackAI",
@@ -127,11 +128,14 @@ export default async function PricingPage() {
       </section>
 
       <section>
-        <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-[rgba(255,255,255,0.06)] border hairline stagger">
+        <Stagger
+          speed="slow"
+          className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-[rgba(255,255,255,0.06)] border hairline"
+        >
           {TIERS.map((tier) => {
             const isCurrent = currentPlan === tier.id;
             return (
-              <div
+              <StaggerItem
                 key={tier.id}
                 className={`bg-[#08090b] p-8 flex flex-col ${
                   tier.highlight ? "lg:scale-[1.02]" : ""
@@ -174,14 +178,14 @@ export default async function PricingPage() {
                   isCurrent={isCurrent}
                   signedIn={!!user}
                 />
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       </section>
 
       <section className="border-t hairline">
-        <div className="max-w-3xl mx-auto px-6 py-20">
+        <Reveal className="max-w-3xl mx-auto px-6 py-20">
           <p className="eyebrow mb-6">Common questions</p>
           <div className="space-y-8">
             {[
@@ -212,7 +216,7 @@ export default async function PricingPage() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <footer className="border-t hairline">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 const AGENTS = [
   {
@@ -210,9 +211,9 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 border-t border-l hairline">
+          <Stagger className="grid grid-cols-1 md:grid-cols-3 border-t border-l hairline">
             {AGENTS.map((agent) => (
-              <div key={agent.id} className="border-r border-b hairline p-7 hover-border bg-[#08090b]">
+              <StaggerItem key={agent.id} className="border-r border-b hairline p-7 hover-border bg-[#08090b]">
                 <div className="flex items-baseline justify-between mb-6">
                   <p className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase">
                     {agent.role}
@@ -231,9 +232,9 @@ export default function LandingPage() {
                   </p>
                   <p className="text-[13px] text-[#a1a6ae] truncate">{agent.sample}</p>
                 </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
 
@@ -251,13 +252,13 @@ export default function LandingPage() {
               your problem.
             </p>
           </div>
-          <div className="lg:col-span-7 lg:order-1 card divide-y divide-[rgba(255,255,255,0.06)]">
+          <Stagger speed="slow" className="lg:col-span-7 lg:order-1 card divide-y divide-[rgba(255,255,255,0.06)]">
             {[
               { who: "Inbox Ivy", time: "06:42", text: "Drafted reply to Marcus re: extending the trial. Matches the tone you used with Lena last week.", action: "Approve & send" },
               { who: "Meeting Marv", time: "08:55", text: "9am call with Sarah Chen (Acme). Last touch was Mar 12. They asked about pricing for 50+ seats.", action: "Open brief" },
               { who: "Follow-up Fred", time: "10:11", text: "3 threads gone quiet. Drafts queued. None of them sound like a robot, I checked.", action: "Review (3)" },
             ].map((m, i) => (
-              <div key={i} className="px-5 py-4 flex items-start gap-4">
+              <StaggerItem key={i} className="px-5 py-4 flex items-start gap-4">
                 <div className="w-7 h-7 rounded-full bg-[rgba(212,255,58,0.15)] border border-[rgba(212,255,58,0.3)] shrink-0 flex items-center justify-center">
                   <span className="font-mono text-[10px] text-[#d4ff3a]">
                     {m.who.split(" ").map(w => w[0]).join("")}
@@ -273,9 +274,9 @@ export default function LandingPage() {
                     {m.action} →
                   </button>
                 </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
 
