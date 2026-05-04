@@ -1,26 +1,149 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Restrained palette — only 4 colors */
+  --bg: #08090b;
+  --surface: #0f1012;
+  --hairline: rgba(255, 255, 255, 0.06);
+  --text: #f7f8f8;
+  --text-dim: #8a8f98;
+  --text-faint: #4d525c;
+  --accent: #d4ff3a;
+  --accent-dim: rgba(212, 255, 58, 0.12);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: 'Instrument Serif', Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  letter-spacing: -0.011em;
 }
+
+::selection { background: var(--accent); color: var(--bg); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+/* Section eyebrow — editorial monospace label */
+.eyebrow {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* Hairline */
+.hairline { border-color: var(--hairline); }
+
+/* Display headline — tight tracking, restrained weight */
+.display {
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+/* Serif accent — Instrument Serif via Google Fonts */
+.serif {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Tabular numerals for prices */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Subtle 1px dot pattern — used once on hero only */
+.subtle-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+  background-size: 32px 32px;
+  background-position: 0 0;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%);
+}
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+}
+
+/* Chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hairline);
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+/* Button — flat, sharp, no glow */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-accent:hover { background: #e3ff5e; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--hairline);
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.02); }
+
+/* Subtle pulse — for the live status dot only */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.pulse-soft { animation: pulse-soft 2.6s ease-in-out infinite; }
+
+/* Section reveal — used once per section, not on every element */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal { animation: reveal 0.5s ease-out both; }
+.reveal-1 { animation: reveal 0.5s ease-out 0.05s both; }
+.reveal-2 { animation: reveal 0.5s ease-out 0.1s both; }
+.reveal-3 { animation: reveal 0.5s ease-out 0.15s both; }
+
+/* Hover state — subtle border shift only, no scale or glow */
+.hover-border { transition: border-color 0.2s ease; }
+.hover-border:hover { border-color: rgba(255,255,255,0.16); }
