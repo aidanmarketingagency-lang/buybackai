@@ -132,16 +132,36 @@ export async function PATCH(
     return NextResponse.json({ success: true });
   }
 
-  // Email reply / urgent: create the Gmail draft.
+  // Email reply / urgent / follow-up: create the Gmail draft.
+  // Follow-up drafts use a slightly different content shape (we replied to
+  // OUR own thread, recipient = original to, draft_reply field instead of
+  // draft). Normalize both shapes into the args createGmailDraftReply needs.
   const c = action.content as {
     gmail_thread_id?: string;
+    thread_id?: string;
     gmail_id?: string;
     from?: string;
+    recipient?: string;
     subject?: string;
     draft?: string | null;
+    draft_reply?: string | null;
   };
 
-  if (!c.draft || !c.gmail_thread_id || !c.gmail_id || !c.from || !c.subject) {
+  const draftArgs = {
+    threadId: c.gmail_thread_id ?? c.thread_id ?? "",
+    inReplyToMessageId: c.gmail_id ?? "",
+    to: c.from ?? c.recipient ?? "",
+    subject: c.subject ?? "",
+    bodyText: c.draft ?? c.draft_reply ?? "",
+  };
+
+  if (
+    !draftArgs.bodyText ||
+    !draftArgs.threadId ||
+    !draftArgs.inReplyToMessageId ||
+    !draftArgs.to ||
+    !draftArgs.subject
+  ) {
     // Action is malformed — roll the claim back so the row doesn't stay in
     // 'processing' forever. Caller should dismiss it.
     await rollbackToPending(id, user.id);
@@ -156,13 +176,7 @@ export async function PATCH(
   }
 
   const draftResult = await withGoogleToken(user.id, async (token) =>
-    createGmailDraftReply(token, {
-      threadId: c.gmail_thread_id!,
-      inReplyToMessageId: c.gmail_id!,
-      to: c.from!,
-      subject: c.subject!,
-      bodyText: c.draft!,
-    })
+    createGmailDraftReply(token, draftArgs)
   );
 
   if (!draftResult.ok) {
@@ -275,7 +289,11 @@ export async function PATCH(
 }
 
 function actionNeedsGmailDraft(type: string): boolean {
-  return type === "email_reply" || type === "urgent_email";
+  return (
+    type === "email_reply" ||
+    type === "urgent_email" ||
+    type === "follow_up_draft"
+  );
 }
 
 async function rollbackToPending(actionId: string, userId: string): Promise<void> {
