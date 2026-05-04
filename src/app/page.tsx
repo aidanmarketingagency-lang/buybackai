@@ -44,7 +44,7 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8 text-sm text-[#8a8f98]">
             <a href="#agents" className="hover:text-[#f7f8f8] transition-colors">Agents</a>
             <a href="#how" className="hover:text-[#f7f8f8] transition-colors">How it works</a>
-            <a href="#pricing" className="hover:text-[#f7f8f8] transition-colors">Pricing</a>
+            <Link href="/pricing" className="hover:text-[#f7f8f8] transition-colors">Pricing</Link>
             <a href="#manifesto" className="hover:text-[#f7f8f8] transition-colors">Manifesto</a>
           </div>
           <div className="flex items-center gap-3">
@@ -302,37 +302,80 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing — minimal, no Most Popular glow */}
+      {/* Pricing — three tiers, free / pro / founder */}
       <section id="pricing" className="border-t hairline">
         <div className="max-w-6xl mx-auto px-6 py-24">
           <div className="mb-12 max-w-xl">
             <p className="eyebrow mb-3">04 — Pricing</p>
             <h2 className="display text-3xl sm:text-4xl mb-4">
-              Per agent, per month. Cancel any of them.
+              Pay for the hours back, not the software.
             </h2>
             <p className="text-[15px] leading-[1.6] text-[#8a8f98]">
-              No bundles, no seats, no tiers. The audit is free. Pick the agents you actually
-              want and pay only for those.
+              Free audit, free first agent. When time saved is worth more than dinner, upgrade.
             </p>
           </div>
-          <div className="border-t border-l hairline grid grid-cols-1 md:grid-cols-4">
+          <div className="border-t border-l hairline grid grid-cols-1 md:grid-cols-3">
             {[
-              { name: "Audit", price: "$0", unit: "free", body: "Read your last 14 days. See where the hours go. Keep the report." },
-              { name: "1 agent", price: "$19–29", unit: "/mo", body: "Hire any one agent. Cancel inside the dashboard whenever." },
-              { name: "All agents", price: "$59", unit: "/mo", body: "Every agent we&apos;ve shipped, plus the new ones as they launch." },
-              { name: "Founder", price: "$149", unit: "/mo", body: "Everything, plus 3 seats, Slack/GoHighLevel, and direct line to me." },
+              {
+                name: "Free",
+                price: "$0",
+                unit: "forever",
+                body: "Run the audit. One active agent (Inbox Ivy). Cancel any time — there's nothing to cancel.",
+                bullets: ["1 active agent", "Free audit, anytime", "Email triage"],
+              },
+              {
+                name: "Pro",
+                price: "$49",
+                unit: "/mo",
+                body: "All three agents working full-time. The point at which you stop noticing them.",
+                bullets: ["Up to 5 agents", "Ivy + Marv + Fred", "Hourly meeting briefs"],
+                highlight: true,
+              },
+              {
+                name: "Founder",
+                price: "$149",
+                unit: "/mo",
+                body: "Unlimited agents. Custom agent requests. Direct line to me. Quarterly buyback strategy call.",
+                bullets: ["Unlimited agents", "Custom agent requests", "Founder Slack"],
+              },
             ].map((p) => (
-              <div key={p.name} className="border-r border-b hairline p-7 hover-border">
-                <p className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase mb-4">
-                  {p.name}
-                </p>
+              <div
+                key={p.name}
+                className={`border-r border-b hairline p-7 hover-border ${
+                  p.highlight ? "bg-[rgba(212,255,58,0.02)]" : ""
+                }`}
+              >
+                <div className="flex items-baseline justify-between mb-4">
+                  <p className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase">
+                    {p.name}
+                  </p>
+                  {p.highlight && (
+                    <span className="font-mono text-[11px] text-[#d4ff3a] tracking-wider">
+                      MOST POPULAR
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-baseline gap-1 mb-4">
                   <span className="text-3xl font-medium tabular">{p.price}</span>
                   <span className="text-[#5d626c] text-sm">{p.unit}</span>
                 </div>
-                <p className="text-[13px] leading-[1.55] text-[#8a8f98]" dangerouslySetInnerHTML={{__html: p.body}} />
+                <p className="text-[13px] leading-[1.55] text-[#8a8f98] mb-5">{p.body}</p>
+                <ul className="space-y-1.5 mb-6">
+                  {p.bullets.map((b) => (
+                    <li key={b} className="text-[12px] text-[#a1a6ae] flex items-start gap-2">
+                      <span className="text-[#d4ff3a] shrink-0">→</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
+          </div>
+          <div className="mt-8 flex justify-center">
+            <Link href="/pricing" className="btn btn-accent">
+              See full pricing
+              <span aria-hidden>→</span>
+            </Link>
           </div>
         </div>
       </section>

@@ -176,6 +176,7 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
             { label: "Agents", href: "/agents", active: false },
             { label: "Run audit", href: "/audit", active: false },
             { label: "Master prompt", href: "/onboarding", active: false },
+            { label: "Pricing", href: "/pricing", active: false },
           ].map((item) => (
             <Link
               key={item.href}
@@ -193,9 +194,26 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
         <div className="p-3 border-t hairline">
           <div className="px-3 py-2 mb-1">
             <p className="text-[13px] font-medium truncate">{profile?.full_name || profile?.email}</p>
-            <p className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase mt-0.5">
-              {profile?.plan} plan
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase">
+                {profile?.plan} plan
+              </p>
+              {profile?.plan === "free" ? (
+                <Link
+                  href="/pricing"
+                  className="font-mono text-[11px] text-[#d4ff3a] tracking-wider uppercase hover:text-white transition-colors"
+                >
+                  · UPGRADE
+                </Link>
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase hover:text-[#a1a6ae] transition-colors"
+                >
+                  · MANAGE
+                </Link>
+              )}
+            </div>
           </div>
           <button
             onClick={handleSignOut}
@@ -367,6 +385,21 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
                   </Link>
                 </div>
               )}
+
+              {profile?.plan === "free" &&
+                agents.filter((a) => a.status === "active").length >= 1 && (
+                  <div className="mt-8 pt-8 border-t hairline">
+                    <p className="eyebrow mb-3">Plan limit</p>
+                    <p className="text-[14px] text-[#a1a6ae] mb-4 leading-[1.55]">
+                      Free plan stops at one active agent. Pro unlocks Marv and Fred, plus
+                      five agents total.
+                    </p>
+                    <Link href="/pricing" className="btn btn-accent">
+                      Upgrade to Pro
+                      <span aria-hidden>→</span>
+                    </Link>
+                  </div>
+                )}
             </div>
           </div>
         </div>

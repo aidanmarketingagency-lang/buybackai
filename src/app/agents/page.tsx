@@ -63,16 +63,51 @@ const AGENTS = [
 export default function AgentsPage() {
   const [deploying, setDeploying] = useState<string | null>(null);
   const [deployed, setDeployed] = useState<string[]>([]);
+  const [error, setError] = useState<{ id: string; message: string; upgrade?: boolean } | null>(
+    null
+  );
 
   async function deployAgent(agentId: string) {
     setDeploying(agentId);
+    setError(null);
     try {
       const res = await fetch("/api/agents/deploy", {
         method: "POST",
         body: JSON.stringify({ type: agentId }),
         headers: { "Content-Type": "application/json" },
       });
-      if (res.ok) setDeployed((prev) => [...prev, agentId]);
+      if (res.ok) {
+        setDeployed((prev) => [...prev, agentId]);
+        return;
+      }
+      if (res.status === 401) {
+        window.location.href = "/auth/login?next=/agents";
+        return;
+      }
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        message?: string;
+        upgrade?: boolean;
+      };
+      if (res.status === 403 && data.upgrade) {
+        setError({
+          id: agentId,
+          message: "You're on the free plan — only one active agent. Upgrade to deploy more.",
+          upgrade: true,
+        });
+        return;
+      }
+      if (res.status === 409) {
+        setError({
+          id: agentId,
+          message: data.message ?? "You already have this agent active.",
+        });
+        return;
+      }
+      setError({
+        id: agentId,
+        message: data.message ?? data.error ?? "Could not deploy. Try again.",
+      });
     } finally {
       setDeploying(null);
     }
@@ -93,6 +128,9 @@ export default function AgentsPage() {
             <Link href="/audit" className="hover:text-[#f7f8f8] transition-colors">
               Run audit
             </Link>
+            <Link href="/pricing" className="hover:text-[#f7f8f8] transition-colors">
+              Pricing
+            </Link>
           </div>
         </div>
       </nav>
@@ -112,7 +150,7 @@ export default function AgentsPage() {
         </div>
 
         {deployed.length > 0 && (
-          <div className="mb-8 px-5 py-3 border border-[rgba(212,255,58,0.3)] bg-[rgba(212,255,58,0.04)] flex items-center justify-between">
+          <div className="mb-8 px-5 py-3 border border-[rgba(212,255,58,0.3)] bg-[rgba(212,255,58,0.04)] flex items-center justify-between reveal">
             <p className="font-mono text-[12px] text-[#d4ff3a] tracking-wider">
               ✓ {deployed.length} AGENT{deployed.length > 1 ? "S" : ""} HIRED · WORKING
             </p>
@@ -122,6 +160,27 @@ export default function AgentsPage() {
             >
               dashboard →
             </Link>
+          </div>
+        )}
+
+        {error?.upgrade && (
+          <div className="mb-8 px-5 py-4 border border-[rgba(212,255,58,0.3)] bg-[rgba(212,255,58,0.04)] flex items-center justify-between gap-4 reveal">
+            <p className="text-[13px] text-[#a1a6ae]">{error.message}</p>
+            <Link href="/pricing" className="btn btn-accent">
+              See plans
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        )}
+        {error && !error.upgrade && (
+          <div className="mb-8 px-5 py-3 border border-[rgba(255,138,76,0.3)] bg-[rgba(255,138,76,0.04)] flex items-center justify-between reveal">
+            <p className="font-mono text-[12px] text-[#ff8a4c] tracking-wider">{error.message}</p>
+            <button
+              onClick={() => setError(null)}
+              className="font-mono text-[12px] text-[#5d626c] hover:text-[#a1a6ae] transition-colors"
+            >
+              dismiss
+            </button>
           </div>
         )}
 
@@ -184,8 +243,8 @@ export default function AgentsPage() {
 
         <p className="mt-8 font-mono text-[11px] text-[#5d626c] text-center tracking-wider">
           FREE PLAN · 1 AGENT &nbsp;·&nbsp;{" "}
-          <Link href="/auth/signup" className="text-[#d4ff3a] hover:text-white transition-colors">
-            UPGRADE FOR ALL
+          <Link href="/pricing" className="text-[#d4ff3a] hover:text-white transition-colors">
+            SEE PLANS
           </Link>
         </p>
       </div>
