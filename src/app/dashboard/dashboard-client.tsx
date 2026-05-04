@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PublicProfile, PublicAgent, PublicAgentAction, PublicAudit } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -128,10 +128,26 @@ interface Props {
   agents: PublicAgent[];
   actions: PublicAgentAction[];
   latestAudit: PublicAudit | null;
+  upgradeStatus?: "upgraded" | "canceled" | null;
 }
 
-export default function DashboardClient({ profile, agents, actions, latestAudit }: Props) {
+export default function DashboardClient({ profile, agents, actions, latestAudit, upgradeStatus }: Props) {
   const router = useRouter();
+  const [toastVisible, setToastVisible] = useState<typeof upgradeStatus>(upgradeStatus ?? null);
+
+  // Auto-hide the upgrade/cancel toast after 6s and strip the query param
+  // so refreshing the page doesn't re-show it.
+  useEffect(() => {
+    if (!toastVisible) return;
+    const t = window.setTimeout(() => setToastVisible(null), 6000);
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("upgraded") || url.searchParams.has("canceled")) {
+      url.searchParams.delete("upgraded");
+      url.searchParams.delete("canceled");
+      window.history.replaceState({}, "", url.toString());
+    }
+    return () => window.clearTimeout(t);
+  }, [toastVisible]);
   const hourlyRate = profile?.hourly_rate || 250;
 
   const totalHoursSaved = agents.reduce((sum, a) => sum + a.hours_saved, 0);
@@ -227,6 +243,22 @@ export default function DashboardClient({ profile, agents, actions, latestAudit 
 
       {/* Main */}
       <main className="flex-1 lg:ml-60">
+        {toastVisible === "upgraded" && (
+          <div className="fixed bottom-6 right-6 z-50 max-w-sm border border-[rgba(212,255,58,0.35)] bg-[rgba(212,255,58,0.06)] px-5 py-4 reveal">
+            <p className="font-mono text-[11px] text-[#d4ff3a] tracking-wider mb-1">UPGRADED · WELCOME TO PRO</p>
+            <p className="text-[13px] text-[#d4d8de] leading-[1.5]">
+              Plan active. You can now deploy up to 5 agents. Stripe will email a receipt.
+            </p>
+          </div>
+        )}
+        {toastVisible === "canceled" && (
+          <div className="fixed bottom-6 right-6 z-50 max-w-sm border border-[rgba(255,138,76,0.35)] bg-[rgba(255,138,76,0.04)] px-5 py-4 reveal">
+            <p className="font-mono text-[11px] text-[#ff8a4c] tracking-wider mb-1">CHECKOUT CANCELED</p>
+            <p className="text-[13px] text-[#d4d8de] leading-[1.5]">
+              No charge. <Link href="/pricing" className="text-[#d4ff3a] underline">See plans →</Link>
+            </p>
+          </div>
+        )}
         {/* Mobile nav */}
         <nav className="lg:hidden border-b hairline">
           <div className="px-6 h-14 flex items-center justify-between">

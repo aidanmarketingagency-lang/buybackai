@@ -9,6 +9,8 @@ import {
   summarizeActivity,
   type ActivitySummary,
 } from "@/lib/google/activity";
+import { sendEmail, resendConfigured } from "@/lib/email/resend";
+import { auditReadyTemplate } from "@/lib/email/templates";
 
 function getAnthropic() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -136,6 +138,51 @@ export async function POST() {
         total_dollar_cost: totalCost,
       })
       .eq("id", auditId);
+
+    // Fire-and-forget audit-ready email. Failures are logged but never
+    // affect the user-facing audit response — the audit itself succeeded.
+    if (resendConfigured) {
+      try {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("email, full_name, email_unsubscribed_at")
+          .eq("id", user.id)
+          .single();
+        const profileTyped = profile as {
+          email?: string;
+          full_name?: string | null;
+          email_unsubscribed_at?: string | null;
+        } | null;
+        if (
+          profileTyped?.email &&
+          !profileTyped.email_unsubscribed_at
+        ) {
+          const topThief = (timeThieves as Array<{ title: string; hours_per_week: number }>)
+            .slice()
+            .sort((a, b) => b.hours_per_week - a.hours_per_week)[0];
+          const tpl = auditReadyTemplate({
+            userId: user.id,
+            firstName: profileTyped.full_name?.split(" ")[0] ?? null,
+            totalHours,
+            totalDollars: totalCost,
+            hourlyRate,
+            topThief: topThief?.title ?? null,
+          });
+          // Don't await — let the response return immediately.
+          void sendEmail({
+            to: profileTyped.email,
+            subject: tpl.subject,
+            html: tpl.html,
+            text: tpl.text,
+            tag: "audit_ready",
+          }).then((r) => {
+            if (!r.ok) console.warn("[audit] email send failed:", r.error);
+          });
+        }
+      } catch (err) {
+        console.warn("[audit] email hook crashed:", err);
+      }
+    }
 
     return NextResponse.json({
       timeThieves,

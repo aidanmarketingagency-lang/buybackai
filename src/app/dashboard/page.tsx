@@ -17,13 +17,24 @@ const AUDIT_PUBLIC_FIELDS =
 const ACTION_PUBLIC_FIELDS =
   "id, agent_id, user_id, type, summary, content, status, created_at";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ upgraded?: string; canceled?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/login");
+
+  const params = await searchParams;
+  const upgradeStatus = params.upgraded
+    ? "upgraded"
+    : params.canceled
+    ? "canceled"
+    : null;
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -65,6 +76,7 @@ export default async function DashboardPage() {
       agents={agents || []}
       actions={actions || []}
       latestAudit={latestAudit}
+      upgradeStatus={upgradeStatus}
     />
   );
 }

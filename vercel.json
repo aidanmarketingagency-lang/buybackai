@@ -2,6 +2,7 @@
   "crons": [
     { "path": "/api/cron/triage-email", "schedule": "*/15 * * * *" },
     { "path": "/api/cron/meeting-prep", "schedule": "0 * * * *" },
-    { "path": "/api/cron/follow-up",   "schedule": "30 */6 * * *" }
+    { "path": "/api/cron/follow-up",   "schedule": "30 */6 * * *" },
+    { "path": "/api/cron/email-digest","schedule": "30 13 * * *" }
   ]
 }
