@@ -4,6 +4,8 @@
 
 **Live:** [buybackai.vercel.app](https://buybackai.vercel.app) · **Status:** v0.1 beta · invite-only
 
+> **License:** Source-available for personal, educational, and other noncommercial use only ([PolyForm Noncommercial 1.0.0](LICENSE)). **Commercial use is not permitted** without a paid license — email **aidanmarketingagency@gmail.com**.
+
 ---
 
 ## What this is
@@ -50,6 +52,8 @@ Crons:
 | `/api/cron/email-digest` | daily, 13:30 UTC | Email summary of pending actions |
 
 ## Local development
+
+> **Read the [LICENSE](LICENSE) before running this code.** You may run BuybackAI locally for personal use, study, or contribution. **Hosting it for users, integrating it into a commercial product, or using it inside a for-profit company is not permitted** without a paid commercial license — email aidanmarketingagency@gmail.com.
 
 Requires Node 20+, a Supabase project, and Anthropic + Google OAuth credentials.
 
@@ -169,7 +173,19 @@ This is a real product. It's small on purpose. Next on the list:
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+**PolyForm Noncommercial 1.0.0** — see [LICENSE](LICENSE).
+
+In plain English:
+- ✅ Read the code, learn from it, fork it for personal projects
+- ✅ Use it for research, education, hobby projects, nonprofits
+- ✅ Submit pull requests
+- ❌ Run a commercial version of BuybackAI
+- ❌ Host it for paying customers
+- ❌ Use it inside a for-profit company without a license
+
+For commercial use, contact **aidanmarketingagency@gmail.com**.
+
+This license is enforceable. If you're not sure whether your use is commercial, ask before you ship.
 
 ## Built by
 
