@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 const AGENTS = [
   {
@@ -136,7 +137,7 @@ export default function AgentsPage() {
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="mb-12 max-w-2xl">
+        <Reveal className="mb-12 max-w-2xl" amount={0}>
           <p className="eyebrow mb-3">02 — Agents</p>
           <h1 className="display text-4xl sm:text-5xl mb-5">
             Hire one. <span className="serif text-[#d4ff3a]">Watch it work.</span>
@@ -147,7 +148,7 @@ export default function AgentsPage() {
             Each agent does one thing well and runs in the background. No prompts to write,
             no workflows to configure. Click hire — they start that hour.
           </p>
-        </div>
+        </Reveal>
 
         {deployed.length > 0 && (
           <div className="mb-8 px-5 py-3 border border-[rgba(212,255,58,0.3)] bg-[rgba(212,255,58,0.04)] flex items-center justify-between reveal">
@@ -184,14 +185,14 @@ export default function AgentsPage() {
           </div>
         )}
 
-        <div className="border-t border-l hairline grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <Stagger className="border-t border-l hairline grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" amount={0.05}>
           {AGENTS.map((agent) => {
             const isDeployed = deployed.includes(agent.id);
             const isDeploying = deploying === agent.id;
             return (
-              <div
+              <StaggerItem
                 key={agent.id}
-                className="border-r border-b hairline p-7 hover-border bg-[#08090b] flex flex-col"
+                className="border-r border-b hairline p-7 hover-border bg-[#08090b] flex flex-col agent-card"
               >
                 <div className="flex items-baseline justify-between mb-5">
                   <p className="font-mono text-[11px] text-[#5d626c] tracking-wider uppercase">
@@ -236,10 +237,10 @@ export default function AgentsPage() {
                     </button>
                   )}
                 </div>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
 
         <p className="mt-8 font-mono text-[11px] text-[#5d626c] text-center tracking-wider">
           FREE PLAN · 1 AGENT &nbsp;·&nbsp;{" "}

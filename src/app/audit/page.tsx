@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { TimeThief } from "@/types/database";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 type AuditStatus = "idle" | "analyzing" | "complete" | "error";
 
@@ -27,26 +29,57 @@ export default function AuditPage() {
   const totalHours = timeThieves.reduce((sum, t) => sum + t.hours_per_week, 0);
   const totalCost = totalHours * hourlyRate;
 
+  // Jittered step appender — per spec, log lines arrive every 240–600ms,
+  // not metronomic. Holds on the second-to-last step until the API call
+  // returns, then advances to the final "generating report" line.
+  const stepTimerRef = useRef<number | null>(null);
+
+  function scheduleNextStep() {
+    const delay = 240 + Math.random() * 360;
+    stepTimerRef.current = window.setTimeout(() => {
+      setCurrentStep((p) => {
+        // Pause on the penultimate step until the API call resolves.
+        if (p >= ANALYSIS_STEPS.length - 2) return p;
+        scheduleNextStep();
+        return p + 1;
+      });
+    }, delay);
+  }
+
   async function runAudit() {
     setStatus("analyzing");
     setCurrentStep(0);
-
-    const interval = setInterval(() => {
-      setCurrentStep((p) => (p < ANALYSIS_STEPS.length - 1 ? p + 1 : p));
-    }, 1100);
+    scheduleNextStep();
 
     try {
       const res = await fetch("/api/audit", { method: "POST" });
-      clearInterval(interval);
+      if (stepTimerRef.current) {
+        window.clearTimeout(stepTimerRef.current);
+        stepTimerRef.current = null;
+      }
       if (!res.ok) throw new Error("audit failed");
       const data = await res.json();
+      // Final step lands the moment data returns.
+      setCurrentStep(ANALYSIS_STEPS.length - 1);
       setTimeThieves(data.timeThieves);
-      setStatus("complete");
+      // Tiny breath before the result reveal — matches spec's "blur drops
+      // over 680ms" cadence so the user feels the system landing rather
+      // than a hard cut.
+      window.setTimeout(() => setStatus("complete"), 320);
     } catch {
-      clearInterval(interval);
+      if (stepTimerRef.current) {
+        window.clearTimeout(stepTimerRef.current);
+        stepTimerRef.current = null;
+      }
       setStatus("error");
     }
   }
+
+  useEffect(() => {
+    return () => {
+      if (stepTimerRef.current) window.clearTimeout(stepTimerRef.current);
+    };
+  }, []);
 
   // ─── IDLE ───────────────────────────────
   if (status === "idle") {
@@ -54,7 +87,7 @@ export default function AuditPage() {
       <div className="min-h-screen bg-[#08090b] text-[#f7f8f8] flex flex-col">
         <Nav />
         <div className="flex-1 flex items-center justify-center px-6 py-16">
-          <div className="max-w-xl w-full reveal">
+          <Reveal className="max-w-xl w-full" amount={0}>
             <p className="eyebrow mb-6">Step 01 — Audit</p>
             <h1 className="display text-4xl sm:text-5xl mb-6">
               Find the weeks you&apos;re <span className="serif text-[#d4ff3a]">losing.</span>
@@ -88,7 +121,7 @@ export default function AuditPage() {
             <p className="mt-4 font-mono text-[11px] text-[#5d626c]">
               read-only · we never modify mail or calendar
             </p>
-          </div>
+          </Reveal>
         </div>
       </div>
     );
@@ -107,24 +140,31 @@ export default function AuditPage() {
                 AUDIT.LOG · running
               </span>
             </div>
-            <pre className="p-5 m-0 font-mono text-[13px] leading-[1.8] text-[#a1a6ae] whitespace-pre-wrap">
+            <div className="p-5 m-0 font-mono text-[13px] leading-[1.8]">
               {ANALYSIS_STEPS.map((step, i) => {
-                const status =
-                  i < currentStep ? "✓" : i === currentStep ? "·" : " ";
-                const color =
-                  i < currentStep
-                    ? "text-[#5d626c]"
-                    : i === currentStep
-                    ? "text-[#d4ff3a]"
-                    : "text-[#3a3e46]";
+                const isPast = i < currentStep;
+                const isActive = i === currentStep;
+                const isFuture = i > currentStep;
+                if (isFuture) return null; // append-only log per spec
+                const symbol = isPast ? "✓" : "·";
+                const color = isPast ? "text-[#5d626c]" : "text-[#d4ff3a]";
                 return (
-                  <div key={i} className={color}>
-                    <span className="mr-2">{status}</span>
+                  <div
+                    key={i}
+                    className={`${color} ${isActive ? "shimmer" : ""}`}
+                    style={{
+                      animation: "reveal-up var(--dur-quick) var(--ease-out) both",
+                    }}
+                  >
+                    <span className="mr-2">{symbol}</span>
                     {step}
+                    {isActive && (
+                      <span className="ml-1 inline-block animate-pulse">_</span>
+                    )}
                   </div>
                 );
               })}
-            </pre>
+            </div>
           </div>
         </div>
       </div>
@@ -162,7 +202,7 @@ export default function AuditPage() {
     <div className="min-h-screen bg-[#08090b] text-[#f7f8f8]">
       <Nav />
       <div className="max-w-4xl mx-auto px-6 py-16">
-        <div className="mb-12 reveal">
+        <Reveal className="mb-12" amount={0}>
           <p className="eyebrow mb-3">01 — Audit · complete</p>
           <h1 className="display text-4xl sm:text-5xl mb-6">
             Here&apos;s where your <span className="serif text-[#d4ff3a]">week went.</span>
@@ -172,14 +212,16 @@ export default function AuditPage() {
               <p className="font-mono text-[11px] text-[#5d626c] tracking-wider mb-1">
                 HOURS / WEEK
               </p>
-              <p className="text-3xl font-medium tabular">{totalHours.toFixed(1)}h</p>
+              <p className="text-3xl font-medium tabular">
+                <AnimatedCounter end={totalHours} decimals={1} suffix="h" duration={1400} />
+              </p>
             </div>
             <div>
               <p className="font-mono text-[11px] text-[#5d626c] tracking-wider mb-1">
                 AT ${hourlyRate}/HR
               </p>
               <p className="text-3xl font-medium tabular text-[#d4ff3a]">
-                ${totalCost.toLocaleString()}/wk
+                <AnimatedCounter end={totalCost} prefix="$" suffix="/wk" duration={1600} />
               </p>
             </div>
             <div>
@@ -189,11 +231,15 @@ export default function AuditPage() {
               <p className="text-3xl font-medium tabular">{timeThieves.length}</p>
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="border-t hairline reveal-1">
+        <Stagger className="border-t hairline" amount={0.05}>
           {timeThieves.map((thief, i) => (
-            <div key={thief.id} className="border-b hairline py-6 grid grid-cols-12 gap-4 items-baseline">
+            <StaggerItem
+              variant="quick"
+              key={thief.id}
+              className="border-b hairline py-6 grid grid-cols-12 gap-4 items-baseline"
+            >
               <div className="col-span-1 font-mono text-[11px] text-[#5d626c] tracking-wider">
                 {String(i + 1).padStart(2, "0")}
               </div>
@@ -230,11 +276,11 @@ export default function AuditPage() {
                 </p>
                 <p className="text-[13px] text-[#a1a6ae]">{thief.recommended_agent}</p>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
 
-        <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 reveal-2">
+        <Reveal className="mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" delay={0.5}>
           <p className="text-[14px] text-[#8a8f98] max-w-md">
             That&apos;s {totalHours.toFixed(1)} hours a week worth taking back. Hire your first agent
             and start clawing it back today.
@@ -243,7 +289,7 @@ export default function AuditPage() {
             Browse agents
             <span aria-hidden>→</span>
           </button>
-        </div>
+        </Reveal>
       </div>
     </div>
   );

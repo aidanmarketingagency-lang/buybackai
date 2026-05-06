@@ -161,6 +161,16 @@ body {
 .reveal-2 { animation: reveal-up var(--dur-slow) var(--ease-out) 200ms both; }
 .reveal-3 { animation: reveal-up var(--dur-slow) var(--ease-out) 320ms both; }
 
+/* Slide-in-from-right — used on onboarding step transitions per spec.
+   Pair with a remount via React key to retrigger on each new step. */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-in-right {
+  animation: slide-in-right var(--dur-base) var(--ease-out) 60ms both;
+}
+
 /* Stagger container — children fade up in sequence */
 .stagger > * {
   opacity: 0;
@@ -176,6 +186,34 @@ body {
 /* Hover — used on cards. Hairline brightens, no scale or glow. */
 .hover-border { transition: border-color var(--dur-instant) var(--ease-out); }
 .hover-border:hover { border-color: rgba(255,255,255,0.14); }
+
+/* Agent card lift — per spec: translateY(-2px) on hover, hairline
+   brightens. No scale, no glow. */
+.agent-card {
+  transition:
+    transform var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
+  will-change: transform;
+}
+.agent-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Single hairline ring spinner — replaces button label during async ops.
+   Per spec: 800ms linear loop, single ring, no spokes. */
+.ring-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ring-spinner-rot 800ms linear infinite;
+  opacity: 0.8;
+}
+@keyframes ring-spinner-rot {
+  to { transform: rotate(360deg); }
+}
 
 /* Shimmer pass — used on audit rows when categorizing */
 .shimmer { position: relative; overflow: hidden; }

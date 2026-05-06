@@ -210,7 +210,7 @@ function OnboardingForm() {
             </span>
           </div>
 
-          <div key={question.id} className="reveal">
+          <div key={question.id} className="slide-in-right">
             <p className="eyebrow mb-3">Master prompt · {question.number}</p>
             <h2 className="display text-3xl sm:text-4xl mb-3">{question.question}</h2>
             {question.hint && (
