@@ -197,6 +197,112 @@ body {
   to { transform: translateX(100%); }
 }
 
+/* Long-form markdown article — used by /motion-spec and any future doc
+   pages. Keeps the editorial dark aesthetic without bringing in a
+   prose plugin. Limit max-width via the page wrapper, not in here. */
+.motion-spec {
+  color: #d4d8de;
+  font-size: 15px;
+  line-height: 1.7;
+  letter-spacing: -0.005em;
+}
+.motion-spec h1 {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 56px 0 18px;
+  color: var(--text);
+}
+.motion-spec h2 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 48px 0 14px;
+  color: var(--text);
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+}
+.motion-spec h3 {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 32px 0 10px;
+  color: var(--text);
+}
+.motion-spec h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 24px 0 8px;
+  color: var(--text);
+}
+.motion-spec p { margin: 0 0 16px; }
+.motion-spec strong { color: var(--text); font-weight: 500; }
+.motion-spec em { font-family: var(--font-instrument-serif), Georgia, serif; font-style: italic; color: #c8ccd2; }
+.motion-spec a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(212,255,58,0.2); transition: border-color var(--dur-instant) var(--ease-out); }
+.motion-spec a:hover { border-bottom-color: var(--accent); }
+.motion-spec ul, .motion-spec ol { margin: 0 0 18px; padding-left: 22px; }
+.motion-spec li { margin: 0 0 6px; }
+.motion-spec ul > li::marker { color: var(--accent); }
+.motion-spec ol > li::marker { color: var(--text-faint); font-family: var(--font-geist-mono), monospace; }
+.motion-spec blockquote {
+  border-left: 2px solid var(--accent);
+  padding: 4px 0 4px 16px;
+  margin: 18px 0;
+  color: #c8ccd2;
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+}
+.motion-spec hr { border: 0; border-top: 1px solid var(--hairline); margin: 40px 0; }
+.motion-spec code {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12.5px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  padding: 1px 6px;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+.motion-spec pre {
+  background: #0a0b0d;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 16px 18px;
+  margin: 18px 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.motion-spec pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #d4d8de;
+}
+.motion-spec table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 13px;
+}
+.motion-spec table th, .motion-spec table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+.motion-spec table th {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.motion-spec table tr:hover td { background: rgba(255,255,255,0.02); }
+
 /* Reduced motion — collapse all animations to short opacity-only fades. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

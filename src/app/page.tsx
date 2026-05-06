@@ -415,6 +415,8 @@ export default function LandingPage() {
             Built on Dan Martell&apos;s Buy Back framework. Not affiliated with Dan Martell.
           </p>
           <div className="flex gap-6 text-[13px] text-[#5d626c] order-2 sm:order-3">
+            <Link href="/motion-spec" className="hover:text-[#a1a6ae] transition-colors">Design</Link>
+            <Link href="/pricing" className="hover:text-[#a1a6ae] transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-[#a1a6ae] transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-[#a1a6ae] transition-colors">Terms</Link>
             <a href="mailto:hello@buybackai.com" className="hover:text-[#a1a6ae] transition-colors">Contact</a>
