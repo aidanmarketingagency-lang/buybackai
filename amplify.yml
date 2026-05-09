@@ -15,8 +15,9 @@ applications:
             - env | grep -E '^(NEXT_PUBLIC_|SUPABASE_|ANTHROPIC_|GOOGLE_|STRIPE_|RESEND_|CRON_SECRET|EMAIL_UNSUB_SECRET|NODE_OPTIONS)' >> .env.production || true
             # Debug: print key NAMES (not values) the build sees, so we can tell
             # whether the Amplify console env vars are actually reaching this phase.
-            - echo "::: env keys visible to build :::" && env | grep -E '^(NEXT_PUBLIC_|SUPABASE_|ANTHROPIC_|GOOGLE_|STRIPE_|RESEND_|CRON_SECRET|EMAIL_UNSUB_SECRET|NODE_OPTIONS)' | cut -d= -f1 | sort || echo "(none matched)"
-            - echo "::: .env.production keys :::" && (cut -d= -f1 .env.production 2>/dev/null | sort | uniq) || echo "(empty or missing)"
+            # (Avoid colons in echo strings — YAML parser treats them as key separators.)
+            - echo "--- env keys visible to build ---" && env | grep -E '^(NEXT_PUBLIC_|SUPABASE_|ANTHROPIC_|GOOGLE_|STRIPE_|RESEND_|CRON_SECRET|EMAIL_UNSUB_SECRET|NODE_OPTIONS)' | cut -d= -f1 | sort || echo "(none matched)"
+            - echo "--- env.production keys ---" && (cut -d= -f1 .env.production 2>/dev/null | sort | uniq) || echo "(empty or missing)"
             - npm run build
       artifacts:
         baseDirectory: .next
