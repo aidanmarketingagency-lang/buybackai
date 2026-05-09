@@ -8,6 +8,11 @@ applications:
             - npm ci --cache .npm --prefer-offline
         build:
           commands:
+            # Forward Amplify console env vars into .env.production so Next.js
+            # picks them up during page-data collection. Without this, NEXT_PUBLIC_*
+            # vars (and any server-side var read at module-eval time) are undefined
+            # during `next build` and the build fails with cryptic "X is required" errors.
+            - env | grep -E '^(NEXT_PUBLIC_|SUPABASE_|ANTHROPIC_|GOOGLE_|STRIPE_|RESEND_|CRON_SECRET|EMAIL_UNSUB_SECRET|NODE_OPTIONS)' >> .env.production || true
             - npm run build
       artifacts:
         baseDirectory: .next
